@@ -1,0 +1,148 @@
+<% include header %>
+
+
+
+<div class="layui-main">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>登录</legend>
+    </fieldset>
+
+    <form class="layui-form" style='margin:0 auto;width:350px'>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+
+                <input type="text" id="un" name="username" lay-verify="required" placeholder="请输入" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+
+                <input type="password" id="pd" name="password" lay-verify="required" placeholder="请输入" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">验证码</label>
+            <div class="layui-input-block">
+                <div id="mpanel3"></div>
+            </div>
+        </div>
+        <div class="layui-form-item" style='margin:30px auto;width:100px;'>
+            <div class="layui-input-inline">
+                <button id="btn" class="btn layui-btn" type="button">登录</button>
+
+            </div>
+        </div>
+
+    </form>
+
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>管理员登录</legend>
+    </fieldset>
+
+    <form class="layui-form" style='margin:0 auto;width:350px'>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+
+                <input type="text" id="unAdmin" name="username" lay-verify="required" placeholder="请输入" autocomplete="off"
+                    class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+
+                <input type="password" id="pdAdmin" name="password" lay-verify="required" placeholder="请输入"
+                    autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-form-item" style='margin:30px auto;width:100px;'>
+            <div class="layui-input-inline">
+                <button id="btnAdmin" class="btn layui-btn" type="button">登录</button>
+
+            </div>
+        </div>
+
+    </form>
+
+    <script src='../layui/layui.js'></script>
+</div> <!-- /container -->
+<div id="LAY_democodejs">
+    <script>
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            $('#btnAdmin').click(function () {
+                $.ajax({
+                    url: '/admin/api-login',
+                    type: 'post',
+                    data: {
+                        un: $('#unAdmin').val(),
+                        pd: $('#pdAdmin').val()
+                    },
+                    success: function (res) {
+                        if (res.code == 1) {
+                            layer.alert(res.msg);
+                            location.href = '/admin/';
+                        } else {
+                            alert(res.msg)
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+
+                })
+            })
+
+        });
+        // ajax  post 
+
+
+
+
+        $('#mpanel3').codeVerify({
+            type: 2,
+            figure: 100, //位数，仅在type=2时生效
+            arith: 0, //算法，支持加减乘，不填为随机，仅在type=2时生效
+            width: '200px',
+            height: '50px',
+            fontSize: '30px',
+            btnId: 'btn',
+            ready: function () {},
+            success: function () {
+                $.ajax({
+                    url: '/users/api-login',
+                    type: 'post',
+                    data: {
+                        un: $('#un').val(),
+                        pd: $('#pd').val()
+                    },
+                    success: function (res) {
+                        console.log(res);
+                        if (res.code == 1) {
+                            alert(res.msg)
+                            location.href = '/users/';
+                        } else {
+                            alert(res.msg)
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+
+                })
+            },
+            error: function () {
+                alert('验证码不匹配！');
+            }
+        });
+    </script>
+
+</div>
+</body>
+
+</html>

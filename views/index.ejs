@@ -1,0 +1,213 @@
+<% include header %>
+
+<!-- 用户名页面 -->
+
+<div class="layui-tab-item layui-show">
+    <div class="layui-main">
+        <div id="LAY_preview">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                <legend>轮播</legend>
+            </fieldset>
+
+            <div class="layui-carousel" style='margin:0 auto' id="test3" lay-filter="test4">
+                <div carousel-item="" id='banner' style='padding:20px;'>
+
+                </div>
+            </div>
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                <legend>文章</legend>
+            </fieldset>
+            <div>
+
+                <ul class="list">
+                    <% for(var i=0;i<data.length;i++){ %>
+                    <li>
+                        <fieldset class="layui-elem-field ">
+                            <legend class='layui-bg-green'>
+                                <a href="/users/article/<%= data[i]._id %>">
+                                    <h2>
+                                        <%= data[i].title %>
+                                    </h2>
+                                </a>
+                            </legend>
+                            <div class="layui-field-box">
+                                <p>作者：<span>
+                                        <%= data[i].username %> </span></p>
+                                <p>时间：<span>
+                                        <%= formatTime(data[i].time) %> </span></p>
+                                <p>浏览次数：<span>
+                                        <%= data[i].pv?data[i].pv:0 %> </span></p>
+                            </div>
+                        </fieldset>
+                    </li>
+                    <% } %>
+
+                </ul>
+                <div>
+                    <% if(pageNum > 1){%>
+                    <a href="<%= preUrl %>">上一页</a>
+                    <% } %>
+
+                    <% if(pages>=5){  for(var i=pageNum;i<=5+pageNum;i++) { %>
+
+                    <% if(pageNum == i){ %>
+                    <%= i %>
+                    <% }else { %>
+                    <a href="/users/page/<%= i %>">
+                        <%= i %> </a>
+                    <% }%>
+
+
+                    <% } } %>
+
+
+                    <a href="<%= nextUrl %>">下一页</a>
+                </div>
+                <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+                    <legend>发表文章</legend>
+                </fieldset>
+                <div>
+                    <% if(username){ %>
+
+                    <form action="/users/publish" method="post">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">标题：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="title" lay-verify="required" placeholder="请输入" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item layui-form-text">
+                            <label class="layui-form-label">内容：</label>
+                            <div class="layui-input-block">
+                                <textarea placeholder="请输入内容" name="content" class="layui-textarea"></textarea>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button class="layui-btn" lay-submit="" type="submit" lay-filter="demo1">发表</button>
+                                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                            </div>
+                        </div>
+                        
+
+
+                    </form>
+
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="LAY_democodejs">
+    <script>
+        $.ajax({
+            url: '/admin/article/list',
+            type: 'get',
+            success: function (res) {
+                console.log(res.data);
+                var str = '';
+                var sj = 0;
+                
+
+                for (var i = 0; i < 5; i++) {
+                    
+                    sj = Math.floor(Math.random() * (120 - 1)) + 1;;
+                    str +=
+                        `
+                    <div style='padding:20px;border-box:sizing;'>
+                        <h1 class=''style='padding:0px;'>
+                            <a href="/users/article/${res.data[sj]._id}">
+                                <h2>
+                                    ${res.data[sj].title}
+                                </h2>
+                            </a>
+                        </h1>
+                        <hr class="layui-bg-blue" width:'100px'>
+                        <div style='padding:20px;border-box:sizing;' width:'580px' height:'320px'>
+                            <a href="/users/article/${res.data[sj]._id }">
+                                <img style="width:400px;height:200px;margin:0 auto;display:block;" src='../images/${i}.jpg'>   
+                            </a>
+                        </div>
+                      </div>
+                  `
+
+                }
+                $('#banner').html(str);
+
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        })
+        layui.use(['carousel', 'form'], function () {
+            var carousel = layui.carousel,
+                form = layui.form;
+
+            //常规轮播
+            carousel.render({
+                elem: '#test1',
+                arrow: 'always'
+            });
+
+
+            //设定各种参数
+            var ins3 = carousel.render({
+                elem: '#test3'
+            });
+
+
+            //事件
+            carousel.on('change(test4)', function (res) {
+                console.log(res)
+            });
+
+            var $ = layui.$,
+                active = {
+                    set: function (othis) {
+                        var THIS = 'layui-bg-normal',
+                            key = othis.data('key'),
+                            options = {};
+
+                        othis.css('background-color', '#5FB878').siblings().removeAttr('style');
+                        options[key] = othis.data('value');
+                        ins3.reload(options);
+                    }
+                };
+
+            //监听开关
+            form.on('switch(autoplay)', function () {
+                ins3.reload({
+                    autoplay: this.checked
+                });
+            });
+
+            $('.demoSet').on('keyup', function () {
+                var value = this.value,
+                    options = {};
+                if (!/^\d+$/.test(value)) return;
+
+                options[this.name] = value;
+                ins3.reload(options);
+            });
+
+            //其它示例
+            $('.demoTest .layui-btn').on('click', function () {
+                var othis = $(this),
+                    type = othis.data('type');
+                active[type] ? active[type].call(this, othis) : '';
+            });
+        });
+    </script>
+</div>
+
+<% include footerBackstage %>
+
+
+
+</body>
+
+</html>

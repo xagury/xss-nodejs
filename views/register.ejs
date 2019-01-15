@@ -1,0 +1,71 @@
+
+        <% include header %>
+
+
+
+    <div class="layui-main">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                    <legend>注册</legend>
+                </fieldset>
+
+                <form class="layui-form" style='margin:0 auto;width:350px'>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用户名</label>
+                            <div class="layui-input-inline">
+                                 
+                                <input type="text" id="un" name="username" lay-verify="required" placeholder="请输入" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">密码</label>
+                            <div class="layui-input-inline">
+                                
+                                <input type="password" id="pd" name="password" lay-verify="required" placeholder="请输入" autocomplete="off"
+                                    class="layui-input">
+                            </div>
+                        </div>
+                      
+                        <div class="layui-form-item" style='margin:30px auto;width:100px;'>
+                            <div class="layui-input-inline">
+                                <button id="btn" class="btn layui-btn" type="button">注册</button>
+                            
+                            </div>
+                        </div>
+                
+                    </form>
+ 
+      
+          </div> <!-- /container -->
+   
+    <script>
+        // ajax  post 
+       $('#btn').click(function(){
+        $.ajax({
+            url:'/users/api-register',
+            type:'post',
+            data:{
+                un:$('#un').val(),
+                pd:$('#pd').val()
+            },
+            success:function(res){
+                console.log(res);
+                if(res.code == 1){
+                    alert(res.msg)
+                    location.href = '/users/login';
+                }else{
+                    alert(res.msg)
+                }
+            },
+            error:function(error){
+                console.log(error);
+            }
+
+        })
+       })
+    
+    </script>
+
+
+</body>
+</html>

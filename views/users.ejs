@@ -1,0 +1,104 @@
+<% include header %>
+
+<!-- 用户名页面 -->
+<div class='layui-main'>
+
+
+    <fieldset class="layui-elem-field" style='margin-top:30px;'>
+        <legend class='layui-bg-green'>
+            更改我的头像
+        </legend>
+        <div class="layui-field-box">
+            <img src="<%= user.headImgUrl %>" alt="" style='margin:30px 0' class="img-thumbnail" width="150px">
+
+
+            选择一个文件上传: <br />
+            <form action="/users/file_upload" method="post" enctype="multipart/form-data">
+
+                <input type="file" name="image" class='layui-inline' size="50" />
+
+                <input type="submit" class="layui-btn" value="上传文件" />
+            </form>
+        </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field">
+        <legend class='layui-bg-green'>
+            我的文章
+        </legend>
+        <div class="layui-field-box">
+            <ul class="list">
+                <% for(var i=0;i<data.length;i++){ %>
+
+                <li>
+                    <blockquote class="layui-elem-quote">
+                        <a href="/users/article/<%= data[i]._id %>">
+                            <h2>
+                                <%= data[i].title %>
+                            </h2>
+                        </a>
+                        <p>作者：<span>
+                                <%= data[i].username %> </span></p>
+                        <p>时间：<span>
+                                <%= formatTime(data[i].time) %> </span></p>
+                    </blockquote>
+
+                </li>
+                <% } %>
+            </ul>
+        </div>
+    </fieldset>
+
+
+    <fieldset class="layui-elem-field">
+        <legend class='layui-bg-green'>
+            发表我的文章
+        </legend>
+        <div class="layui-field-box">
+            <% if(username){ %>
+            <form action="/users/publish" method="post">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">标题：</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="title" lay-verify="required" placeholder="请输入" autocomplete="off"
+                            class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">内容：</label>
+                    <div class="layui-input-block">
+                        <script name='content' id="editor" type="text/plain" style="width:624px;height:300px;"></script>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" type="submit" lay-filter="demo1">发表</button>
+                        
+                    </div>
+                </div>
+
+
+            </form>
+
+
+
+            <% } %>
+        </div>
+    </fieldset>
+
+</div>
+<!-- 配置文件 -->
+<script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.config.js"></script>
+<script type="text/javascript" charset="utf-8" src="/ueditor/ueditor.all.min.js">
+</script>
+<script type="text/javascript" charset="utf-8" src="/ueditor/lang/zh-cn/zh-cn.js">
+</script>
+<!-- 实例化编辑器 -->
+<script type="text/javascript">
+    var ue = UE.getEditor('editor');
+    
+</script>
+
+</body>
+
+</html>

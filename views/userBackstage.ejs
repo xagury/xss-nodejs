@@ -1,0 +1,161 @@
+<% include headerBackstage %>
+
+
+
+<fieldset class="layui-elem-field layui-field-title">
+  <legend>用户管理</legend>
+</fieldset>
+<div class="layui-tab-item layui-show">
+  <div class="layui-main">
+    <div id="LAY_preview">
+      <div class="demoTable">
+        搜索用户名：
+        <div class="layui-inline">
+          <input class="layui-input" name="username" id="demoReload" autocomplete="off">
+        </div>
+        <div class="layui-btn search" data-type="reload">搜索</div>
+      </div>
+      <table class="layui-hide" id="test" lay-filter="test"></table>
+
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+          <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+          <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+          <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+        </div>
+      </script>
+
+      <script type="text/html" id="barDemo">
+
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+
+<div id="LAY_democodejs">
+  <script>
+    $.ajax({
+      url: '/admin/list',
+      type: 'get',
+      success: function (res) {
+        layui.use('table', function () {
+          var table = layui.table;
+
+          tableUser = table.render({
+            elem: '#test',
+            // url: '/admin/list',
+            data: res.data,
+            toolbar: '#toolbarDemo',
+            title: '用户数据表',
+            cols: [
+              [{
+                type: 'checkbox',
+                fixed: 'left'
+              }, {
+                field: '_id',
+                title: 'ID',
+                sort: false
+              }, {
+                field: 'username',
+                title: '用户名',
+              }, {
+                field: 'password',
+                title: '密码',
+                event: 'setPassword'
+              }, {
+                field: 'headImgUrl',
+                title: '头像',
+              }, {
+                field: 'time',
+                title: '注册时间'
+              }, {
+                fixed: 'right',
+                title: '操作',
+                toolbar: '#barDemo',
+                width: 150
+              }]
+            ],
+            page: true
+          });
+          $('.demoTable .layui-btn').on('click', function () {
+            table.reload('test', {
+              url: '/admin/user/select/',
+              where: {
+                username : $('#demoReload').val(),
+              } 
+            });
+          });
+
+          //头工具栏事件
+          table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+              case 'getCheckData':
+                var data = checkStatus.data;
+                layer.alert(JSON.stringify(data));
+                break;
+              case 'getCheckLength':
+                var data = checkStatus.data;
+                layer.msg('选中了：' + data.length + ' 个');
+                break;
+              case 'isAll':
+                layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                break;
+            };
+          });
+
+          //监听行工具事件
+          table.on('tool(test)', function (obj) {
+            var data = obj.data;
+
+            console.log(obj)
+            if (obj.event === 'del') {
+              layer.confirm('真的删除行么', function (index) {
+                console.log(data._id);
+                location.href = '/admin/userBackstage/del/' + data._id
+                obj.del();
+                layer.close(index);
+              });
+            } else if (obj.event === 'setPassword') {
+              layer.prompt({
+                formType: 2,
+                title: '修改 ID 为 [' + data.id + '] 的用户密码',
+                value: data.password
+              }, function (value, index) {
+                layer.close(index);
+
+                //这里一般是发送修改的Ajax请求
+                $.ajax({
+                  url: '/admin/userBackstage/update-api/' + data._id,
+                  type: 'get',
+                  data: {
+                    password: value
+                  },
+                  success: function (res) {
+
+                  },
+                  error: function (error) {
+                    console.log(error);
+                  }
+                })
+                //同步更新表格和缓存对应的值
+                obj.update({
+                  password: value
+                });
+
+              });
+            }
+          });
+
+
+        });
+
+      },
+      error: function (error) {
+        console.log(error);
+      }
+    })
+  </script>
+</div>

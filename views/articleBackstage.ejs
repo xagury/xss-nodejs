@@ -1,0 +1,237 @@
+<% include headerBackstage %>
+
+
+
+<fieldset class="layui-elem-field layui-field-title">
+  <legend>文章管理</legend>
+</fieldset>
+<div class="layui-tab-item layui-show">
+  <div class="layui-main">
+    <div id="LAY_preview">
+      <div class="demoTable">
+        搜索&nbsp;&nbsp;&nbsp;&nbsp;ID：
+        <div class="layui-inline">
+          <input class="layui-input" name='_id' id="demoReloadId" autocomplete="off">
+        </div>
+        <div class="layui-btn search1" data-type="reload">搜索</div>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;用户名：
+        <div class="layui-inline">
+          <input class="layui-input" name='username' id="demoReloadUsername" autocomplete="off">
+        </div>
+        <div class="layui-btn search2" data-type="reloadUser">搜索</div>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;文章标题：
+        <div class="layui-inline">
+          <input class="layui-input" name='title' id="demoReloadTitle" autocomplete="off">
+        </div>
+        <div class="layui-btn search3" data-type="reloadTitle">搜索</div>
+      </div>
+      <table class="layui-hide" id="test" lay-filter="test"></table>
+
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" lay-event="getCheckData">获取选中行数据</button>
+    <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+    <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+  </div>
+</script>
+
+      <script type="text/html" id="barDemo">
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="LAY_democodejs">
+
+
+  <script>
+    $.ajax({
+      url: '/admin/article/list',
+      type: 'get',
+      success: function (res) {
+        console.log(res.data);
+        layui.use('table', function () {
+          var table = layui.table;
+          var $ = layui.jquery;
+          userTable = table.render({
+            elem: '#test',
+            // url: "/admin/article/list",
+            data: res.data,
+            toolbar: '#toolbarDemo',
+            limit: 10,
+            page: true, //开启分页
+            title: '用户数据表',
+            cols: [
+              [{
+                type: 'checkbox',
+                fixed: 'left'
+              }, {
+                field: '_id',
+                title: 'ID',
+                sort: false
+              }, {
+                field: 'username',
+                title: '用户名'
+              }, {
+                field: 'title',
+                title: '文章名',
+                edit: 'text',
+                event: 'setTitle'
+              }, {
+                field: 'content',
+                title: '文章内容',
+                edit: 'text',
+                event: 'setContent'
+              }, {
+                field: 'time',
+                title: '注册时间'
+              }, {
+                fixed: 'right',
+                title: '操作',
+                toolbar: '#barDemo',
+                width: 130
+              }]
+            ]
+
+          });
+
+          $('.demoTable .search1').on('click', function () {
+            var search = $('#demoReloadId');
+            table.reload('test', {
+
+              url: '/admin/article/select/',
+              where: {
+                _id: search.val(),
+              }
+            });
+          });
+          $('.demoTable .search2').on('click', function () {
+            var search = $('#demoReloadUsername');
+            table.reload('test', {
+
+              url: '/admin/article/selectUsername/',
+              where: {
+                username: search.val(),
+              }
+            });
+          });
+          $('.demoTable .search3').on('click', function () {
+            var search = $('#demoReloadTitle');
+            table.reload('test', {
+
+              url: '/admin/article/selectTitle/',
+              where: {
+                title: search.val(),
+              }
+            });
+          });
+
+          //头工具栏事件
+          table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+              case 'getCheckData':
+                var data = checkStatus.data;
+                layer.alert(JSON.stringify(data));
+                break;
+              case 'getCheckLength':
+                var data = checkStatus.data;
+                layer.msg('选中了：' + data.length + ' 个');
+                break;
+              case 'isAll':
+                layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                break;
+            };
+          });
+
+          //监听行工具事件
+          table.on('tool(test)', function (obj) {
+            var data = obj.data;
+
+          });
+
+          table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+              layer.confirm('真的删除行么', function (index) {
+
+                location.href = '/admin/articleBackstage/del/' + data._id
+                obj.del();
+                layer.close(index);
+              });
+            } else if (obj.event === 'setTitle') {
+              layer.prompt({
+                formType: 2,
+                title: '修改 ID 为 [' + data.id + '] 的用户签名',
+                value: data.title
+              }, function (value, index) {
+                layer.close(index);
+
+                //这里一般是发送修改的Ajax请求
+                $.ajax({
+                  url: '/admin/articleBackstage/update-api/' + data._id,
+                  type: 'get',
+                  data: {
+                    title: value
+                  },
+                  success: function (res) {
+
+                  },
+                  error: function (error) {
+                    console.log(error);
+                  }
+                })
+                //同步更新表格和缓存对应的值
+                obj.update({
+                  title: value
+                });
+
+              });
+            } else if (obj.event === 'setContent') {
+              layer.prompt({
+                formType: 2,
+                title: '修改 ID 为 [' + data.id + '] 的用户签名',
+                value: data.content
+              }, function (value, index) {
+                layer.close(index);
+
+                //这里一般是发送修改的Ajax请求
+                $.ajax({
+                  url: '/admin/articleBackstage/update-apiC/' + data._id,
+                  type: 'get',
+                  data: {
+                    content: value
+                  },
+                  success: function (res) {
+
+                  },
+                  error: function (error) {
+                    console.log(error);
+                  }
+                })
+                //同步更新表格和缓存对应的值
+                obj.update({
+                  content: value
+                });
+
+              });
+            }
+          });
+
+
+        });
+      },
+      error: function (error) {
+        console.log(error);
+      }
+    })
+  </script>
+
+</div>
+<% include footerBackstage %>

@@ -1,0 +1,259 @@
+<% include headerBackstage %>
+<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+
+<!-- <div class="layui-card">
+  <div class="layui-card-header">彩虹柱形图</div>
+  <div class="layui-card-body">
+
+    <div class="layui-carousel layadmin-carousel layadmin-dataview" data-anim="fade" lay-filter="LAY-index-colorline">
+      <div carousel-item id="LAY-index-colorline">
+        <div><i class="layui-icon layui-icon-loading1 layadmin-loading"></i></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div> -->
+<fieldset class="layui-elem-field layui-field-title">
+  <legend>注册量</legend>
+</fieldset>
+<div id="main" style="width: 100%;height:400px;"></div>
+<fieldset class="layui-elem-field layui-field-title">
+  <legend>文章日发表量</legend>
+</fieldset>
+<div id="main1" style="width: 100%;height:400px;"></div>
+<fieldset class="layui-elem-field layui-field-title">
+  <legend><a name="default">信息统计</a></legend>
+</fieldset>
+<!-- <table class="layui-table">
+    <thead>
+        <tr>
+            <th>统计</th>
+            <th>资讯库</th>
+            <th>图片库</th>
+            <th>文章库</th>
+            <th>用户</th>
+            <th>管理员</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>总数</td>
+            <td>92</td>
+            <td>9</td>
+            <td>0</td>
+            <td>8</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <td>今日</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>昨日</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>本周</td>
+            <td>2</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+        </tr>
+        <tr>
+            <td>本月</td>
+            <td>2</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+            <td>0</td>
+        </tr>
+    </tbody>
+</table> -->
+
+
+<% include footerBackstage %>
+<script>
+  //JavaScript代码区域
+  layui.use('element', function () {
+    var element = layui.element;
+
+  });
+</script>
+<script>
+  $.get({
+    url: '/admin/api/tj-a1',
+    success: function (res) {
+      console.log(res);
+      var dataX = res.map((v) => {
+        if (v._id) {
+          return v._id.slice(5)
+        } else {
+          return '未知'
+        }
+      })
+      console.log(dataX);
+
+      var dataY = res.map((v) => {
+        return v.num;
+      })
+
+      console.log(dataY);
+
+      // 基于准备好的dom，初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main'));
+
+      // 指定图表的配置项和数据
+      var option = {
+        title: {
+          text: ''
+        },
+        tooltip: {},
+        legend: {
+          data: ['注册量']
+        },
+        xAxis: {
+          data: dataX
+        },
+        yAxis: {},
+        series: [{
+          name: '注册量',
+          type: 'bar',
+          data: dataY
+        }]
+      };
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
+
+
+
+    }
+  })
+</script>
+<script>
+  $.get({
+    url: '/admin/api/tj-a2',
+    success: function (res) {
+      console.log(res);
+      var dataX = res.map((v) => {
+        if (v._id) {
+          return v._id.slice(5)
+        } else {
+          return '未知'
+        }
+      })
+      console.log(dataX);
+
+      var dataY = res.map((v) => {
+        return v.num;
+      })
+
+      console.log(dataY);
+      // 基于准备好的dom，初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main1'), 'echarts-for-x-admin');
+
+      // 指定图表的配置项和数据
+      var option = {
+        backgroundColor: '#fff',
+
+        title: {
+          text: '',
+          left: 'center',
+          top: 20,
+          textStyle: {
+            color: '#1E9FFF'
+          }
+        },
+
+        tooltip: {
+          trigger: 'item',
+          formatter: "{a} <br/>{b} : {c} ({d}%)",
+          backgroundColor: {
+            color: '#01AAED'
+          }
+        },
+
+        visualMap: {
+          show: false,
+          min: 5,
+          max: 10,
+          inRange: {
+            color: ['#50a3ba', '#eac736', '#d94e5d']
+          },
+          textStyle: {
+            color: '#000'
+
+          }
+        },
+        series: [{
+          name: '访问来源',
+          type: 'pie',
+          radius: '65%',
+          center: ['50%', '50%'],
+          data: [{
+              value: dataY[0],
+              name: dataX[0]
+            },
+            {
+              value: dataY[1],
+              name: dataX[1]
+            },
+            {
+              value: dataY[2],
+              name: dataX[2]
+            },
+            {
+              value: dataY[3],
+              name: dataX[3]
+            },
+            {
+              value: dataY[4],
+              name: dataX[4]
+            }
+          ].sort(function (a, b) {
+            return a.value - b.value
+          }),
+          roseType: 'angle',
+          label: {
+            normal: {
+              textStyle: {
+                color: '#FF5722'
+              }
+            }
+          },
+          labelLine: {
+            normal: {
+              lineStyle: {
+                color: '#FFB800'
+              },
+              smooth: 0.2,
+              length: 10,
+              length2: 20
+            }
+          },
+          itemStyle: {
+            normal: {
+              color: '#FFB800',
+              shadowBlur: 200,
+              shadowColor: 'rgba(0, 0, 0, 0.5)'
+            }
+          }
+        }]
+      };
+
+      // 使用刚指定的配置项和数据显示图表。
+      myChart.setOption(option);
+
+    }
+  })
+</script>
